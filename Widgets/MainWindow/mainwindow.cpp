@@ -20,13 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->observer = new SettingsObserver(settings);
     fileModifier = new FileModifier;
 
-    connect(fileModifier, &FileModifier::processingStarted, [this](){
-        ui->startPushButton->setEnabled(false);
-    });
-    connect(fileModifier, &FileModifier::processingFinished, [this](){
-        ui->startPushButton->setEnabled(true);
-    });
-
     // валидация ввода
     // имя файла
     QRegularExpression fileNameMaskRegExp("[a-zA-Z0-9_\\-\\.\\*\\?\\[\\]\\{\\}\\^\\$\\(\\)\\|\\+\\\\]*");
@@ -56,15 +49,29 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->overwriteRadioButton, &QRadioButton::clicked, observer, &SettingsObserver::onOverwriteRadioButtonClicked);
     connect(ui->modifyRadioButton, &QRadioButton::clicked, observer, &SettingsObserver::onModifyRadioButtonClicked);
     connect(ui->binaryOperandLineEdit, &QLineEdit::textChanged, observer, &SettingsObserver::onBinaryOperandChanged);
+    connect(this->observer, &SettingsObserver::settingsChanged, [this](){
+        ui->startPushButton->setEnabled(isSettingsValid(this->settings));
+    });
+    ui->stopPushButton->setEnabled(false);
 
     // сигналы для выбора директорий
     connect(ui->selectSourceDirPushButton, &QPushButton::clicked, this, &MainWindow::onSelectSourceDirPushButtonClicked);
     connect(ui->selectSaveDirPushButton, &QPushButton::clicked, this, &MainWindow::onSelectSaveDirPushButtonClicked);
 
-    // сигналы для запуска обработки файлов
+    // сигналы для запуска и остановки обработки файлов
     connect(ui->startPushButton, &QPushButton::clicked, this, &MainWindow::onStartPushButtonClicked);
-    connect(this->observer, &SettingsObserver::settingsChanged, [this](){
-        ui->startPushButton->setEnabled(isSettingsValid(this->settings));
+    connect(ui->stopPushButton, &QPushButton::clicked, fileModifier, &FileModifier::stopProcessing);
+
+
+    // сигналы для блокировки кнопки старта и конца обработки
+    connect(fileModifier, &FileModifier::processingStarted, [this](){
+        ui->startPushButton->setEnabled(false);
+        ui->stopPushButton->setEnabled(true);
+    });
+    connect(fileModifier, &FileModifier::processingFinished, [this](){
+        qDebug() << "Processing stopped";
+        ui->startPushButton->setEnabled(true);
+        ui->stopPushButton->setEnabled(false);
     });
 
 

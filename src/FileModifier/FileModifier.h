@@ -20,12 +20,13 @@ public:
     void setupFileModifier(ModificationSettings settings, ThreadSafeLogger* logger);
 public slots:
     void startProcessing();
-
+    void stopProcessing();
 signals:
     void processingStarted();
     void processingFinished();
 
 private:
+    int i;
     void processFile(const QString& filePath);
     void processDirectory();
 
