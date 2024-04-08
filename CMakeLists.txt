@@ -17,9 +17,18 @@ find_package(Qt6 COMPONENTS
         REQUIRED)
 
 add_executable(BinaryFileModifier main.cpp
-        MainWindow/mainwindow.cpp
-        MainWindow/mainwindow.h
-        MainWindow/mainwindow.ui)
+        Widgets/MainWindow/mainwindow.cpp
+        Widgets/MainWindow/mainwindow.h
+        Widgets/MainWindow/mainwindow.ui
+        model/ModificationSettings/ModificationSettings.h
+        model/ModificationSettings/ModificationSettings.cpp
+        test/test.cpp
+        src/SettingsObserver/SettingsObserver.cpp
+        src/SettingsObserver/SettingsObserver.h
+        src/Logger/Logger.cpp
+        src/Logger/Logger.h
+        src/config/AppConfig/AppConfig.cpp
+        src/config/AppConfig/AppConfig.h)
 target_link_libraries(BinaryFileModifier
         Qt::Core
         Qt::Gui
