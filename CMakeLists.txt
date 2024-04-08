@@ -31,7 +31,11 @@ add_executable(BinaryFileModifier main.cpp
         src/Logger/TextBrowserLogger/TextBrowserLogger.cpp
         src/Logger/TextBrowserLogger/TextBrowserLogger.h
         src/Logger/TextStreamLogger/TextStreamLogger.cpp
-        src/Logger/TextStreamLogger/TextStreamLogger.h)
+        src/Logger/TextStreamLogger/TextStreamLogger.h
+        src/FileModifier/FileModifier.cpp
+        src/FileModifier/FileModifier.h
+        src/Logger/ThreadSafeLogger/ThreadSafeLogger.cpp
+        src/Logger/ThreadSafeLogger/ThreadSafeLogger.h)
 target_link_libraries(BinaryFileModifier
         Qt::Core
         Qt::Gui

@@ -5,10 +5,10 @@
 #include <QTextBrowser>
 #include "../LoggerInterface.h"
 
-class TextBrowserLogger : public LoggerInterface {
+class TextBrowserLogger : public Logger {
 public:
     explicit TextBrowserLogger(QTextBrowser* textBrowser, QObject *parent = nullptr)
-            : LoggerInterface(parent), m_textBrowser(textBrowser) {}
+            : Logger(parent), m_textBrowser(textBrowser) {}
 
     void log(const QString &message) override;
 

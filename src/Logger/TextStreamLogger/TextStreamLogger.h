@@ -9,10 +9,10 @@
 #include <QTextStream>
 #include "../LoggerInterface.h"
 
-class TextStreamLogger : public LoggerInterface {
+class TextStreamLogger : public Logger {
 public:
     explicit TextStreamLogger(QTextStream* textStream, QObject *parent = nullptr)
-            : LoggerInterface(parent), m_textStream(textStream) {}
+            : Logger(parent), m_textStream(textStream) {}
 
     void log(const QString &message) override;
 

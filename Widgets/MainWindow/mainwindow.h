@@ -6,6 +6,7 @@
 #include "../../src/SettingsObserver/SettingsObserver.h"
 #include "../../src/config/AppConfig/AppConfig.h"
 #include "../../src/Logger/LoggerInterface.h"
+#include "../../src/FileModifier/FileModifier.h"
 
     QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,11 +22,13 @@ public:
 public slots:
     void onSelectSourceDirPushButtonClicked();
     void onSelectSaveDirPushButtonClicked();
+    void onStartPushButtonClicked();
 private:
     Ui::MainWindow *ui;
     ModificationSettings settings;
     SettingsObserver *observer;
-    LoggerInterface *logger;
+    Logger *logger;
+    FileModifier *fileModifier;
 };
 
 

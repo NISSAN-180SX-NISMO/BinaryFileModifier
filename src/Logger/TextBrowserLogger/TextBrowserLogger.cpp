@@ -5,7 +5,8 @@
 #include "TextBrowserLogger.h"
 
 void TextBrowserLogger::log(const QString &message) {
-    m_textBrowser->append(message);
+    QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    m_textBrowser->append("[" + timestamp + "]\t" +message);
 }
 
 void TextBrowserLogger::onSettingsChanged(const ModificationSettings &settings) {

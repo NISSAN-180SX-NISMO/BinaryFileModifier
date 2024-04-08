@@ -9,6 +9,7 @@
 #include "mainwindow.h"
 #include "ui_MainWindow.h"
 #include "../../src/Logger/TextBrowserLogger/TextBrowserLogger.h"
+#include "../../src/Logger/ThreadSafeLogger/ThreadSafeLogger.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -17,6 +18,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->logger = new TextBrowserLogger(ui->logTextBrowser);
     this->observer = new SettingsObserver(settings);
+    fileModifier = new FileModifier;
+
+    connect(fileModifier, &FileModifier::processingStarted, [this](){
+        ui->startPushButton->setEnabled(false);
+    });
+    connect(fileModifier, &FileModifier::processingFinished, [this](){
+        ui->startPushButton->setEnabled(true);
+    });
 
     // валидация ввода
     // имя файла
@@ -35,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->binaryOperandLineEdit->setValidator(binaryOperandValidator);
 
     // подписываемся на сигналы об изменении настроек
-    connect(observer, &SettingsObserver::settingsChanged, logger, &LoggerInterface::onSettingsChanged);
+    connect(observer, &SettingsObserver::settingsChanged, logger, &Logger::onSettingsChanged);
 
     // сигналы для обновления настроек
     connect(ui->sourceDirLineEdit, &QLineEdit::textChanged, observer, &SettingsObserver::onSourceDirPathChanged);
@@ -52,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->selectSourceDirPushButton, &QPushButton::clicked, this, &MainWindow::onSelectSourceDirPushButtonClicked);
     connect(ui->selectSaveDirPushButton, &QPushButton::clicked, this, &MainWindow::onSelectSaveDirPushButtonClicked);
 
+    // сигналы для запуска обработки файлов
+    connect(ui->startPushButton, &QPushButton::clicked, this, &MainWindow::onStartPushButtonClicked);
     connect(this->observer, &SettingsObserver::settingsChanged, [this](){
         ui->startPushButton->setEnabled(isSettingsValid(this->settings));
     });
@@ -91,4 +102,11 @@ void MainWindow::onSelectSaveDirPushButtonClicked() {
 
 MainWindow::~MainWindow() {
     delete ui;
+}
+
+void MainWindow::onStartPushButtonClicked() {
+    auto threadSafeLogger = new ThreadSafeLogger;
+    connect(threadSafeLogger, &ThreadSafeLogger::messageLogged, logger, &Logger::log);
+    fileModifier->setupFileModifier(settings, threadSafeLogger);
+    fileModifier->startProcessing();
 }

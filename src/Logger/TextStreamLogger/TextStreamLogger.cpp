@@ -9,5 +9,6 @@ void TextStreamLogger::onSettingsChanged(const ModificationSettings &settings) {
 }
 
 void TextStreamLogger::log(const QString &message) {
-    (*m_textStream) << message << "\n";
+    QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    (*m_textStream) << "[" << timestamp << "]\t" << message << "\n";
 }
