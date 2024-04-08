@@ -8,17 +8,34 @@
 #include <QFileDialog>
 #include "mainwindow.h"
 #include "ui_MainWindow.h"
+#include "../../src/Logger/TextBrowserLogger/TextBrowserLogger.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    this->logger = new Logger(ui->logTextBrowser);
+    this->logger = new TextBrowserLogger(ui->logTextBrowser);
     this->observer = new SettingsObserver(settings);
 
+    // валидация ввода
+    // имя файла
+    QRegularExpression fileNameMaskRegExp("[a-zA-Z0-9_\\-\\.\\*\\?\\[\\]\\{\\}\\^\\$\\(\\)\\|\\+\\\\]*");
+    QValidator *fileNameMaskValidator = new QRegularExpressionValidator(fileNameMaskRegExp, this);
+    ui->fileNameMaskLineEdit->setValidator(fileNameMaskValidator);
+
+    // расширение файла
+    QRegularExpression fileExtensionMaskRegExp("\\.[a-zA-Z0-9_\\-\\.\\*\\?\\[\\]\\{\\}\\^\\$\\(\\)\\|\\+\\\\]*");
+    QValidator *fileExtensionMaskValidator = new QRegularExpressionValidator(fileExtensionMaskRegExp, this);
+    ui->fileExtensionMaskLineEdit->setValidator(fileExtensionMaskValidator);
+
+    // 16-ричное число размером 16 символов
+    QRegularExpression binaryOperandRegExp("[0-9A-Fa-f]{16}");
+    QValidator *binaryOperandValidator = new QRegularExpressionValidator(binaryOperandRegExp, this);
+    ui->binaryOperandLineEdit->setValidator(binaryOperandValidator);
+
     // подписываемся на сигналы об изменении настроек
-    connect(observer, &SettingsObserver::settingsChanged, logger, &Logger::onSettingsChanged);
+    connect(observer, &SettingsObserver::settingsChanged, logger, &LoggerInterface::onSettingsChanged);
 
     // сигналы для обновления настроек
     connect(ui->sourceDirLineEdit, &QLineEdit::textChanged, observer, &SettingsObserver::onSourceDirPathChanged);
@@ -34,6 +51,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // сигналы для выбора директорий
     connect(ui->selectSourceDirPushButton, &QPushButton::clicked, this, &MainWindow::onSelectSourceDirPushButtonClicked);
     connect(ui->selectSaveDirPushButton, &QPushButton::clicked, this, &MainWindow::onSelectSaveDirPushButtonClicked);
+
+    connect(this->observer, &SettingsObserver::settingsChanged, [this](){
+        ui->startPushButton->setEnabled(isSettingsValid(this->settings));
+    });
 
 
 

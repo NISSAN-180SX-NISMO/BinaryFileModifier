@@ -4,8 +4,8 @@
 #include <QMainWindow>
 #include "../../model/ModificationSettings/ModificationSettings.h"
 #include "../../src/SettingsObserver/SettingsObserver.h"
-#include "../../src/Logger/Logger.h"
 #include "../../src/config/AppConfig/AppConfig.h"
+#include "../../src/Logger/LoggerInterface.h"
 
     QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,7 +25,7 @@ private:
     Ui::MainWindow *ui;
     ModificationSettings settings;
     SettingsObserver *observer;
-    Logger *logger;
+    LoggerInterface *logger;
 };
 
 
