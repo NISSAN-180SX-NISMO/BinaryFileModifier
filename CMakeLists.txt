@@ -22,7 +22,6 @@ add_executable(BinaryFileModifier main.cpp
         Widgets/MainWindow/mainwindow.ui
         model/ModificationSettings/ModificationSettings.h
         model/ModificationSettings/ModificationSettings.cpp
-        test/test.cpp
         src/SettingsObserver/SettingsObserver.cpp
         src/SettingsObserver/SettingsObserver.h
         src/config/AppConfig/AppConfig.cpp
