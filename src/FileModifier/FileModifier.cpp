@@ -3,9 +3,8 @@
 
 QMutex mutex;
 
-inline bool openFileForReading(QFile &file, ThreadSafeLogger* logger) {
+inline bool openFileForReading(QFile &file) {
     if (!file.open(QIODevice::ReadOnly)) {
-        logger->log("Cannot open file for reading: " + file.errorString());
         return false;
     }
     return true;
@@ -48,10 +47,9 @@ inline QString handleFileCollision(QFile &outFile, const ModificationSettings &s
     return outFile.fileName();
 }
 
-inline bool writeToFile(QFile &outFile, const QByteArray &byteArray, ThreadSafeLogger* logger) {
+inline bool writeToFile(QFile &outFile, const QByteArray &byteArray) {
     mutex.lock();
     if (!outFile.open(QIODevice::WriteOnly)) {
-        logger->log("Cannot open file for writing: " + outFile.errorString());
         return false;
     }
     outFile.write(byteArray);
@@ -84,15 +82,33 @@ void FileModifier::processDirectory() {
     QStringList files = dir.entryList(QStringList() << (settings.fileNameMask + settings.fileExtensionMask),
                                       QDir::Files);
     for (const auto &file: files) {
-        QThread::sleep(1);
         logger->log("Processing file: " + file);
         processFile(dir.absoluteFilePath(file));
     }
 }
 
+#include <windows.h>
+
+bool isFileWritable(const std::string& fileName)
+{
+    std::wstring wFileName = std::wstring(fileName.begin(), fileName.end());
+    HANDLE hFile = CreateFile(wFileName.c_str(), GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    CloseHandle(hFile);
+    return true;
+}
+
 void FileModifier::processFile(const QString &filePath) {
     QFile file(filePath);
-    if (!openFileForReading(file, logger)) {
+    if (!isFileWritable(filePath.toStdString())) {
+        logger->log("File is open in another program, skipping: " + filePath);
+        return;
+    }
+
+    if (!openFileForReading(file)) {
+        logger->log("Cannot open file for reading: " + file.errorString());
         return;
     }
 
@@ -103,9 +119,10 @@ void FileModifier::processFile(const QString &filePath) {
     QString newFileName = handleFileCollision(outFile, settings);
     outFile.setFileName(newFileName);
 
-    if (!writeToFile(outFile, byteArray, logger))
+    if (!writeToFile(outFile, byteArray)) {
+        logger->log("Cannot open file for writing: " + outFile.errorString());
         return;
-
+    }
 
     // Remove the source file if needed
     removeSourceFileIfRequired(file, settings.needRemoveSourceFiles);

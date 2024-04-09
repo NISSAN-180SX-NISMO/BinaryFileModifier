@@ -7,5 +7,5 @@
 void ThreadSafeLogger::log(const QString &message) {
     QMutexLocker locker(&mutex);
     QString threadId = QString::number(reinterpret_cast<quintptr>(QThread::currentThreadId()));
-    emit messageLogged(QString("[Thread %1]\t%2").arg(threadId, message));
+    emit messageLogged(QString("[Thread %1]   \t%2").arg(threadId, message));
 }

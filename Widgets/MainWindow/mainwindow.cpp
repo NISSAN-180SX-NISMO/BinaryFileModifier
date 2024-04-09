@@ -14,7 +14,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
-        ui(new Ui::MainWindow) {
+        ui(new Ui::MainWindow)
+        {
     ui->setupUi(this);
     this->logger = new TextBrowserLogger(ui->logTextBrowser);
     this->observer = new SettingsObserver(settings);
@@ -69,7 +70,6 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->stopPushButton->setEnabled(true);
     });
     connect(fileModifier, &FileModifier::processingFinished, [this](){
-        qDebug() << "Processing stopped";
         ui->startPushButton->setEnabled(true);
         ui->stopPushButton->setEnabled(false);
     });
